@@ -50,8 +50,31 @@
 ; Your goal is to write the score method.
 
 (defun score (dice)
-  ; You need to write this method
-)
+  (let ((total-occurences (make-array '(6) :initial-element 0))
+      (score 0)
+      (dice-indexes (mapcar #'1- dice)))
+    (mapcar #'(lambda (die-roll)
+        (incf (aref total-occurences die-roll)))
+      dice-indexes)
+    (when (>= (aref total-occurences 0) 3)
+			(setq score (+ score 1000))
+			(setf (aref total-occurences 0) (- (aref total-occurences 0) 3)))
+		(when (> (aref total-occurences 0) 0)
+			(setq score (+ score (* 100 (aref total-occurences 0)))))
+		(when (> (aref total-occurences 4) 3)
+			(setq score (+ score (* (- (aref total-occurences 4) 3) 50)))
+			(setf (aref total-occurences 4) 3))
+		(when (< (aref total-occurences 4) 3)
+			(setq score (+ score (* (aref total-occurences 4) 50)))
+			(setf (aref total-occurences 4) 0))
+		(mapcar #'(lambda (die-index)
+			  (when (> die-index 0)
+					(when (>= (aref total-occurences die-index) 3)
+						(setq score (+ score (* 100 (1+ die-index))))
+						(setf (aref total-occurences die-index) 0))))
+			dice-indexes)
+    score
+    ))
 
 (define-test test-score-of-an-empty-list-is-zero
     (assert-equal 0 (score nil)))
